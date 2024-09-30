@@ -1,0 +1,8 @@
+*.pyc
+/out*/
+/tmp*/
+/figures*/
+__pycache__
+.ipynb_checkpoints
+*.tar.gz
+*.sh
