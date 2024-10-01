@@ -6,6 +6,8 @@ import torch
 def cholesky_solve(O_mat, F_vec, lambd=1e-3):
     """
     Solve the linear system `(O^T O + lambda I) dtheta = O^T R = F` by Cholesky decomposition
+
+    see arXiv:2310.17556, Algorithm 1
     """
     N, _ = O_mat.size()
     W = O_mat @ O_mat.T + lambd * torch.eye(N, device=O_mat.device)
@@ -18,7 +20,10 @@ def cholesky_solve(O_mat, F_vec, lambd=1e-3):
 def cholesky_solve_fast(O_mat, F_vec, lambd=1e-3):
     """
     Solve the linear system `(O^T O + lambda I) dtheta = O^T R = F` by Cholesky decomposition
+
     The computation Q is inlined
+
+    see arXiv:2310.17556, Algorithm 1
     """
     N, _ = O_mat.size()
     W = O_mat @ O_mat.T + lambd * torch.eye(N, device=O_mat.device)
@@ -33,6 +38,8 @@ def svd_solve(O_mat, F_vec, lambd=1e-3):
     Solve the linear system `(O^T O + lambda I) dtheta = F` by svd
 
     First compute `O O^T = U @ Sigma^2 @ U^T`, then `V = O^T U Sigma^{-1}`
+    
+    see arXiv:2310.17556, Appendix C
     """
     Sigma2, U = torch.linalg.eigh(O_mat @ O_mat.T)
     V = O_mat.T @ (1.0 / torch.sqrt(Sigma2) * U)  # V = O^T U Sigma^{-1}
@@ -47,6 +54,8 @@ def minsr_solve(O_mat, R_vec, lambd=1e-3, r_pinv=1e-12, a_pinv=0, soft=True):
     `dtheta = (O^T O + lambda I)^-1 O^T R = O^T (O O^T + lambda I)^-1 R`
 
     Compute `O O^T = U @ D @ U^T`, so `(O O^T)^-1 = U @ D^-1 @ U^T`
+
+    see arXiv:2108.03409 Section 2.5, and arXiv:2302.01941 MinSR solution
     """
     N, _ = O_mat.size()
     D, U = torch.linalg.eigh(O_mat @ O_mat.T + lambd * torch.eye(N, device=O_mat.device))
